@@ -56,7 +56,7 @@ public class UserInput {
                     setBothpref(scanner.nextLine().trim());
                 }
                 if (getBothpref().equalsIgnoreCase("Yes")) {
-                    System.out.println(" \n " + Util.readProperties("") + "\n ");
+                    System.out.println(" \n " + Util.readProperties("userInputbothPrefAck") + "\n ");
                 } else {
                     System.out.println(" \n " + Util.readProperties("defaultpreference") + " \n ");
                 }
