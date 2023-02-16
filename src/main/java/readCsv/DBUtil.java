@@ -1,5 +1,6 @@
 package readCsv;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -10,7 +11,9 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
+@Slf4j
 public class DBUtil {
     Connection connection;
     Statement statement;
@@ -37,8 +40,7 @@ public class DBUtil {
                     .withTrim());
             dbConfig().executeUpdate(createTableSQL.toString());
         } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+            log.info(e.getLocalizedMessage());
         }
         // Insert the data from the CSV file into the MySQL table
         for (CSVRecord csvRecord : csvParser) {
@@ -56,13 +58,13 @@ public class DBUtil {
             try {
                 dbConfig().executeUpdate(insertSQL.toString());
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.info(e.getLocalizedMessage());
             }
         }
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            log.info(e.getLocalizedMessage());
         }
     }
 
@@ -70,25 +72,48 @@ public class DBUtil {
         createtable();
         Util util = new Util(var1, var2, var3, var4, var5, var6);
         try {
-            System.out.println("\n " + util.setQuery() + "\n ");
+
+            //log.info("\n " + " Querry is " + util.setQuery() + "\n ");
             resultSet = dbConfig().executeQuery(util.setQuery());
             ResultSetMetaData rsmd = resultSet.getMetaData();
             List <String> list = new ArrayList <>();
             int columnsNumber = rsmd.getColumnCount();
-            if (!resultSet.isBeforeFirst() && resultSet.getRow() == 0) {
-                System.out.println(" \n  We apologize for the inconvenience, but the collection you're looking for is not currently in stock. Please try again with new preferences  ");
+            String colName[] = new String[columnsNumber];
+            for (int i = 1; i <= columnsNumber; i++) {
+                colName[i - 1] = rsmd.getColumnName(i);
             }
-            System.out.println(" \n Here is what we have in store for you !!! \n ");
+            log.info(" \t " + " \t " + " \t " + " \t " + Util.readProperties("datasuccessFetch") + "\n");
+            if (!resultSet.isBeforeFirst() && resultSet.getRow() == 0) {
+                System.out.println(" \t" + Util.readProperties("unavailabeMsg"));
+            }
+            for (int i = 1; i <= columnsNumber; i++) {
+                colName[i - 1] = rsmd.getColumnName(i);
+            }
+            System.out.println();
+            for (int i=1 ;i<columnsNumber;i++) {
+                System.out.printf("%-15s", colName[i]);
+            }
+            System.out.println();
             while (resultSet.next()) {
                 for (int i = 2; i <= columnsNumber; i++) {
                     list.add(resultSet.getString(i));
                 }
-                System.out.println(list + "\n");
+                System.out.printf("%15s %n ", list + "\n");
                 list.removeAll(list);
             }
         } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
+            log.info(e.getLocalizedMessage());
         }
+        Scanner scanner = new Scanner(System.in);
+        System.out.printf("%25s %n " ,Util.readProperties("userInputReEnter"));
+        String temp=scanner.nextLine();
+        if(temp.equalsIgnoreCase("NO"))
+        {
+            System.out.printf("%25s %n " , Util.readProperties("exitMessage"));
+            ApparelSEO.flag=false;
+        }
+
+        //System.out.println("\t" + "\t" + "\t" + "\t " + Util.readProperties("userInputReEnter") + "\n");
     }
 
     public void dropTable() {
@@ -96,7 +121,7 @@ public class DBUtil {
             String query = Util.readProperties("dropTable");
             dbConfig().executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
+            log.info(e.getLocalizedMessage());
         }
     }
 
@@ -105,8 +130,11 @@ public class DBUtil {
             connection = DriverManager.getConnection(Util.readProperties("url"), Util.readProperties("dbUsername"), Util.readProperties("dbPassword"));
             statement = connection.createStatement();
         } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
+            log.info(e.getLocalizedMessage());
         }
         return statement;
     }
 }
+
+
+
