@@ -2,11 +2,13 @@ package readCsv;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Scanner;
 
 @Getter
 @Setter
+@Slf4j
 public class UserInput {
     Scanner scanner = new Scanner(System.in);
     private String colur;
@@ -22,10 +24,25 @@ public class UserInput {
     public void setParameters() {
         System.out.println(Util.readProperties("colorInput"));
         setColur(scanner.nextLine().trim());
+        while (getColur().isEmpty() || getColur().isBlank() || getColur() == null) {
+            System.out.println("This is mandatory field Please enter your favourite colour ");
+            System.out.println(Util.readProperties("colorInput"));
+            setColur(scanner.nextLine().trim());
+        }
         System.out.println(Util.readProperties("sizeInput"));
         setSize(scanner.nextLine().trim());
+        while (getSize().isEmpty() || getSize().isBlank() || getSize() == null) {
+            System.out.println(" This is mandatory field Please enter your desire SIZE  ");
+            System.out.println(Util.readProperties("sizeInput"));
+            setSize(scanner.nextLine().trim());
+        }
         System.out.println(Util.readProperties("genderInput"));
         setGender(scanner.nextLine().trim());
+        while (getGender().isBlank() || getGender().isEmpty() || getGender() == null) {
+            System.out.println(" This is mandatory field Please enter your desire GENDER  ");
+            System.out.println(Util.readProperties("genderInput"));
+            setGender(scanner.nextLine().trim());
+        }
         System.out.println(Util.readProperties("price"));
         setPrice(scanner.nextLine().trim());
         while (!(getPrice().equalsIgnoreCase("yes") || getPrice().equalsIgnoreCase("no"))) {
@@ -33,8 +50,6 @@ public class UserInput {
             System.out.println(Util.readProperties("price"));
             setPrice(scanner.nextLine().trim());
         }
-        String rating = "";
-        String both = "";
         if (getPrice().equalsIgnoreCase("Yes")) {
             System.out.println(" \n " + Util.readProperties("userInputPriceAck") + " \n ");
         } else if (getPrice().equalsIgnoreCase("No")) {
